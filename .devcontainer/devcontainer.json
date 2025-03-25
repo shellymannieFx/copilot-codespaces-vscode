@@ -1,0 +1,94 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {}
+}npx create-react-app robotrader-dashboard --template typescript
+   cd robotrader-dashboard
+   npm install @mui/material @emotion/react @emotion/styled react-router-domdjango-admin startproject robotrader_backend
+   cd robotrader_backend
+   python manage.py startapp converter
+   python manage.py startapp licensespip install antlr4-tools// MQL5.g4 (simplified)
+   grammar MQL5;
+   program: (statement)+ ;
+   statement: 'int OnInit()' block ;
+   block: '{' (expression ';')+ '}' ;# converter/views.py
+from django.http import JsonResponse
+from .antlr.MQL5Parser import MQL5Parser
+from .antlr.MQL5Listener import MQL5Listener
+
+class MQL5ToPythonListener(MQL5Listener):
+    def __init__(self):
+        self.python_code = []
+
+    def enterStatement(self, ctx):
+        # Convert MQL5 logic to Python
+        if 'OnInit' in ctx.getText():
+            self.python_code.append("def initialize():")
+    
+def convert_ea(request):
+    mql_code = request.POST.get('code')
+    # Use ANTLR listener to generate Python
+    return JsonResponse({'python_code': converted_code})antlr4 -Dlanguage=Python3 MQL5.g4// LicenseActivation.tsx
+import { TextField, Button } from '@mui/material';
+
+function LicenseActivation() {
+  const [key, setKey] = useState('');
+
+  const activate = async () => {
+    const response = await fetch('/api/activate/', {
+      method: 'POST',
+      body: JSON.stringify({ key }),
+    });
+    if (response.ok) alert('License activated!');
+  };
+
+  return (
+    <div>
+      <TextField label="License Key" onChange={(e) => setKey(e.target.value)} />
+      <Button onClick={activate}>Activate</Button>
+    </div>
+  );
+}# licenses/models.py
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+
+private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+pem = private_key.private_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PrivateFormat.PKCS8,
+    encryption_algorithm=serialization.NoEncryption()
+)
+
+class License(models.Model):
+    mentor = models.ForeignKey(User, on_delete=models.CASCADE)
+    key = models.TextField()  # JWT-encoded
+    expiry = models.DateField()
+    strategy = models.FileField(upload_to='strategies/')  # Converted EA# .github/workflows/django.yml
+   name: Django CI
+   on: [push]
+   jobs:
+     test:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v4
+         - name: Run Tests
+           run: |
+             pip install -r requirements.txt
+             python manage.py test// MentorDashboard.tsx
+function MentorDashboard() {
+  const [file, setFile] = useState<File>();
+
+  const uploadEA = async () => {
+    const formData = new FormData();
+    formData.append('file', file!);
+    const response = await fetch('/api/convert/', { method: 'POST', body: formData });
+    const convertedCode = await response.json();
+    // Save converted EA to S3
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={(e) => setFile(e.target.files?.[0])} />
+      <button onClick={uploadEA}>Convert EA</button>
+    </div>
+  );
+}
